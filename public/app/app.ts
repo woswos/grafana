@@ -117,7 +117,11 @@ import { configureStore } from './store/configureStore';
 _.move = arrayMove;
 
 // import symlinked extensions
-const extensionsIndex = require.context('.', true, /extensions\/index.ts/);
+// TODO: Vite has no require.context support yet. Enterprise will need some thought.
+// const extensionsIndex = require.context('.', true, /extensions\/index.ts/);
+const extensionsIndex = (key: string) => ({});
+extensionsIndex.keys = () => [];
+
 const extensionsExports = extensionsIndex.keys().map((key) => {
   return extensionsIndex(key);
 });
