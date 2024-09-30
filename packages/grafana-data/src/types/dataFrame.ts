@@ -1,6 +1,7 @@
 import { HideSeriesConfig } from '@grafana/schema';
 
 import { ScopedVars } from './ScopedVars';
+import { Action } from './action';
 import { QueryResultBase, Labels, NullValueMode } from './data';
 import { DataLink, LinkModel, OneClickMode } from './dataLink';
 import { DecimalCount, DisplayProcessor, DisplayValue, DisplayValueAlignmentFactors } from './displayValue';
@@ -99,6 +100,8 @@ export interface FieldConfig<TOptions = any> {
 
   // The behavior when clicking on a result
   links?: DataLink[];
+
+  actions?: Action[];
 
   // Alternative to empty string
   noValue?: string;
