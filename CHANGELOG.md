@@ -29,6 +29,7 @@
 
 - **AzureMonitor:** Deduplicate resource picker rows [#93702](https://github.com/grafana/grafana/pull/93702), [@aangelisc](https://github.com/aangelisc)
 - **Correlations:** Limit access to correlations page to users who can access Explore [#93673](https://github.com/grafana/grafana/pull/93673), [@ifrost](https://github.com/ifrost)
+- **Alerting:** Fixed CVE-2024-8118.
 
 <!-- 10.4.10 END -->
 <!-- 10.3.11 START -->
@@ -39,6 +40,7 @@
 
 - **Chore:** Bump Go to 1.22.7 [#93360](https://github.com/grafana/grafana/pull/93360), [@hairyhenderson](https://github.com/hairyhenderson)
 - **Chore:** Bump Go to 1.22.7 (Enterprise)
+- **Alerting:** Fixed CVE-2024-8118.
 
 ### Bug fixes
 
