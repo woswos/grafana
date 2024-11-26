@@ -255,7 +255,7 @@ func (st *Manager) DeleteStateByRuleUID(ctx context.Context, ruleKey ngModels.Al
 		s.SetNormal(reason, startsAt, now)
 		// Set Resolved property so the scheduler knows to send a postable alert
 		// to Alertmanager.
-		if oldState == eval.Alerting || oldState == eval.Error || oldState == eval.NoData {
+		if oldState == eval.Alerting || oldState == eval.Error || oldState == eval.NoData || oldState == eval.Recovering {
 			s.ResolvedAt = &now
 		} else {
 			s.ResolvedAt = nil
@@ -503,7 +503,7 @@ func (st *Manager) setNextState(ctx context.Context, alertRule *ngModels.AlertRu
 	// Set Resolved property so the scheduler knows to send a postable alert
 	// to Alertmanager.
 	newlyResolved := false
-	if oldState == eval.Alerting && currentState.State == eval.Normal {
+	if oldState == eval.Alerting && currentState.State == eval.Normal || oldState == eval.Recovering && currentState.State == eval.Normal {
 		currentState.ResolvedAt = &result.EvaluatedAt
 		newlyResolved = true
 	} else if currentState.State != eval.Normal && currentState.State != eval.Pending { // Retain the last resolved time for Normal->Normal and Normal->Pending.
