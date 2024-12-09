@@ -39,7 +39,7 @@ export function AppChrome({ children }: Props) {
   const menuDockedAndOpen = !state.chromeless && state.megaMenuDocked && state.megaMenuOpen;
   const scopes = useScopes();
   const isScopesDashboardsOpen = Boolean(
-    scopes?.state.isEnabled && scopes?.state.isDrawerOpened && !scopes?.state.isReadOnly
+    scopes?.state.enabled && scopes?.state.drawerOpened && !scopes?.state.readOnly
   );
   const isSingleTopNav = config.featureToggles.singleTopNav;
   useMediaQueryChange({
