@@ -25,8 +25,8 @@ describe('View mode', () => {
     config.featureToggles.groupByVariable = true;
   });
 
-  beforeEach(() => {
-    dashboardScene = renderDashboard();
+  beforeEach(async () => {
+    dashboardScene = await renderDashboard();
   });
 
   afterEach(async () => {
