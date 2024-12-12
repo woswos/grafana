@@ -1,19 +1,13 @@
 import { produce } from 'immer';
 import { isEmpty, pick } from 'lodash';
-import { Observable } from 'rxjs';
 
 import {
-  DataQuery,
-  DataQueryRequest,
-  DataQueryResponse,
-  DataSourceApi,
   DataSourceInstanceSettings,
   DataSourceJsonData,
   DataSourcePluginMeta,
   PluginExtensionLink,
   PluginExtensionTypes,
   ReducerID,
-  TestDataSourceResponse,
 } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { defaultDashboard } from '@grafana/schema';
@@ -399,19 +393,6 @@ export const mockReceiversState = (partial: Partial<ReceiversState> = {}): Recei
     ...partial,
   };
 };
-
-class MockDataSourceApi extends DataSourceApi {
-  constructor(instanceSettings: DataSourceInstanceSettings<DataSourceJsonData>) {
-    super(instanceSettings);
-  }
-
-  query(request: DataQueryRequest<DataQuery>): Promise<DataQueryResponse> | Observable<DataQueryResponse> {
-    throw new Error('Method not implemented.');
-  }
-  testDatasource(): Promise<TestDataSourceResponse> {
-    throw new Error('Method not implemented.');
-  }
-}
 
 export const mockGrafanaReceiver = (
   type: string,
