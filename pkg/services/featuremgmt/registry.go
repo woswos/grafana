@@ -1711,6 +1711,13 @@ var (
 			Owner:       grafanaAppPlatformSquad,
 			Expression:  "false",
 		},
+		{
+			Name:         "templateVariablesUsesCombobox",
+			Description:  "Use new combobox component for template variables",
+			Stage:        FeatureStageExperimental,
+			Owner:        grafanaFrontendPlatformSquad,
+			FrontendOnly: true,
+		},
 	}
 )
 
