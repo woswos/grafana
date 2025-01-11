@@ -58,6 +58,7 @@ type Plugin interface {
 }
 
 func ProvideService(cfg *setting.Cfg, features featuremgmt.FeatureToggles, remoteCache *remotecache.RemoteCache, rm PluginManager) (*RenderingService, error) {
+	// TODO: Need to figure out how to mock this
 	folders := []string{
 		cfg.ImagesDir,
 		cfg.CSVsDir,
@@ -83,19 +84,23 @@ func ProvideService(cfg *setting.Cfg, features featuremgmt.FeatureToggles, remot
 	switch {
 	case cfg.RendererUrl != "":
 		// RendererCallbackUrl has already been passed, it won't generate an error.
-		u, err := url.Parse(cfg.RendererCallbackUrl)
+		_, err := url.Parse(cfg.RendererCallbackUrl)
 		if err != nil {
+			logger.Warn("Image renderer callback url is not valid. " +
+				"Please provide a valid RendererCallbackUrl in the config. " +
+				"Read more at https://grafana.com/docs/grafana/latest/administration/image_rendering/")
 			return nil, err
 		}
 
 		sanitizeURL = getSanitizerURL(cfg.RendererUrl)
-		domain = u.Hostname()
+		domain = cfg.RendererCallbackUrl
 	case cfg.HTTPAddr != setting.DefaultHTTPAddr:
 		domain = cfg.HTTPAddr
 	default:
 		domain = "localhost"
 	}
 
+	// TODO: Need to figure out how to mock this
 	var renderKeyProvider renderKeyProvider
 	if features.IsEnabledGlobally(featuremgmt.FlagRenderAuthJWT) {
 		renderKeyProvider = &jwtRenderKeyProvider{
@@ -111,6 +116,7 @@ func ProvideService(cfg *setting.Cfg, features featuremgmt.FeatureToggles, remot
 		}
 	}
 
+	// TODO: Need to figure out how to mock this
 	_, exists := rm.Renderer(context.Background())
 
 	s := &RenderingService{
@@ -424,18 +430,6 @@ func (rs *RenderingService) getGrafanaCallbackURL(path string) string {
 		// The backend rendering service can potentially be remote.
 		// So we need to use the root_url to ensure the rendering service
 		// can reach this Grafana instance.
-
-		// &render=1 signals to the legacy redirect layer to
-		return fmt.Sprintf("%s%s&render=1", rs.Cfg.RendererCallbackUrl, path)
-	}
-
-	if rs.Cfg.RendererCallbackUrl != "" {
-		_, err := url.Parse(rs.Cfg.RendererCallbackUrl)
-		if err != nil {
-			rs.log.Warn("Image renderer callback url is not valid. " +
-				"Please provide a valid RendererCallbackUrl. " +
-				"Read more at https://grafana.com/docs/grafana/latest/administration/image_rendering/")
-		}
 
 		// &render=1 signals to the legacy redirect layer to
 		return fmt.Sprintf("%s%s&render=1", rs.Cfg.RendererCallbackUrl, path)

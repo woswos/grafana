@@ -31,15 +31,8 @@ func TestGetUrl(t *testing.T) {
 		require.Equal(t, rs.Cfg.RendererCallbackUrl+path+"&render=1", url)
 	})
 
-	t.Run("When callback url is configured and https should return domain of callback url plus path", func(t *testing.T) {
-		rs.Cfg.RendererCallbackUrl = "https://public-grafana.com/"
-		url := rs.getGrafanaCallbackURL(path)
-		require.Equal(t, rs.Cfg.RendererCallbackUrl+path+"&render=1", url)
-	})
-
 	t.Run("When renderer url not configured", func(t *testing.T) {
 		rs.Cfg.RendererUrl = ""
-		rs.Cfg.RendererCallbackUrl = ""
 		rs.domain = "localhost"
 		rs.Cfg.HTTPPort = "3000"
 
@@ -120,6 +113,19 @@ func TestRenderUnavailableError(t *testing.T) {
 	result, err := rs.Render(context.Background(), RenderPNG, opts, nil)
 	assert.Equal(t, ErrRenderUnavailable, err)
 	assert.Nil(t, result)
+}
+
+// test for when rendering service callback url is defined, the rendering service domain is configured to be the callback url
+func TestRenderingServiceWithCallbackURL(t *testing.T) {
+	cfg := &setting.Cfg{
+		RendererUrl:         "https://localhost:8081/render",
+		RendererCallbackUrl: "https://public-grafana.com/",
+	}
+
+	rs, err := ProvideService(cfg, nil, nil, nil)
+	require.NoError(t, err)
+
+	assert.Equal(t, "https://public-grafana.com/", rs.domain)
 }
 
 func TestRenderLimitImage(t *testing.T) {
