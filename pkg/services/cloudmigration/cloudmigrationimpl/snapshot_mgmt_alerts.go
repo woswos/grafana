@@ -9,6 +9,7 @@ import (
 	"github.com/prometheus/common/model"
 
 	"github.com/grafana/grafana/pkg/components/simplejson"
+	"github.com/grafana/grafana/pkg/services/folder"
 	ngalertapi "github.com/grafana/grafana/pkg/services/ngalert/api"
 	"github.com/grafana/grafana/pkg/services/ngalert/api/tooling/definitions"
 	"github.com/grafana/grafana/pkg/services/ngalert/provisioning"
@@ -179,4 +180,48 @@ func (s *Service) getAlertRules(ctx context.Context, signedInUser *user.SignedIn
 	}
 
 	return provisionedAlertRules, nil
+}
+
+/*
+	type AlertRuleGroup struct {
+		Title     string                 `json:"title"`
+		FolderUID string                 `json:"folderUid"`
+		Interval  int64                  `json:"interval"`
+		Rules     []ProvisionedAlertRule `json:"rules"`
+	}
+*/
+type alertRuleGroup struct {
+	Title     string `json:"title"`
+	FolderUID string `json:"folderUid"`
+	Interval  int64  `json:"interval"`
+}
+
+func (s *Service) getAlertRuleGroups(ctx context.Context, signedInUser *user.SignedInUser, folders []folder.CreateFolderCommand) ([]alertRuleGroup, error) {
+	// Is this right? We are using the `folders` from the getDashboardAndFolderCommands method.
+	// But what if there's a folder without a dashboard (only used for the alert rule), will it be returned??
+	// Double check this!!
+	folderUIDs := make([]string, 0)
+	for _, folder := range folders {
+		folderUIDs = append(folderUIDs, folder.UID)
+	}
+
+	alertRuleGroupsWithFolder, err := s.ngAlert.Api.AlertRules.GetAlertGroupsWithFolderFullpath(ctx, signedInUser, folderUIDs)
+	if err != nil {
+		return nil, fmt.Errorf("fetching alert rule groups with folders: %w", err)
+	}
+
+	alertRuleGroups := make([]alertRuleGroup, 0, len(alertRuleGroupsWithFolder))
+	for _, ruleGroup := range alertRuleGroupsWithFolder {
+		// TODO and test! We are not passing the alert rules within the group.
+		// The idea is that we create the alert rule group FIRST, without any alert rules.
+		// We can enforce that order in GMS backend.
+		// Then we create alert rules as we usually do, and because the alert rule group will exist, it should use the right evaluation interval.
+		alertRuleGroups = append(alertRuleGroups, alertRuleGroup{
+			Title:     ruleGroup.Title,
+			FolderUID: ruleGroup.FolderUID,
+			Interval:  ruleGroup.Interval,
+		})
+	}
+
+	return alertRuleGroups, nil
 }

@@ -106,6 +106,13 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 		return nil, err
 	}
 
+	// Alerts: Alert Rule Groups
+	alertRuleGroups, err := s.getAlertRuleGroups(ctx, signedInUser, folders)
+	if err != nil {
+		s.log.Error("Failed to get alert rule groups", "err", err)
+		return nil, err
+	}
+
 	// Alerts: Alert Rules
 	alertRules, err := s.getAlertRules(ctx, signedInUser)
 	if err != nil {
@@ -206,6 +213,15 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 			RefID: notificationPolicies.Name, // no UID available
 			Name:  notificationPolicies.Name,
 			Data:  notificationPolicies.Routes,
+		})
+	}
+
+	for _, alertRuleGroup := range alertRuleGroups {
+		migrationDataSlice = append(migrationDataSlice, cloudmigration.MigrateDataRequestItem{
+			Type:  cloudmigration.AlertRuleGroupType,
+			RefID: alertRuleGroup.Title, // no UID available
+			Name:  alertRuleGroup.Title,
+			Data:  alertRuleGroup,
 		})
 	}
 
