@@ -33,12 +33,13 @@ import (
 var _ builder.APIGroupBuilder = (*SecretAPIBuilder)(nil)
 
 type SecretAPIBuilder struct {
+	tracer             tracing.Tracer
 	secureValueStorage contracts.SecureValueStorage
 	keeperStorage      contracts.KeeperStorage
 }
 
-func NewSecretAPIBuilder(secureValueStorage contracts.SecureValueStorage, keeperStorage contracts.KeeperStorage) *SecretAPIBuilder {
-	return &SecretAPIBuilder{secureValueStorage, keeperStorage}
+func NewSecretAPIBuilder(tracer tracing.Tracer, secureValueStorage contracts.SecureValueStorage, keeperStorage contracts.KeeperStorage) *SecretAPIBuilder {
+	return &SecretAPIBuilder{tracer, secureValueStorage, keeperStorage}
 }
 
 func RegisterAPIService(
@@ -65,9 +66,9 @@ func RegisterAPIService(
 		return nil, fmt.Errorf("initializing encryption manager: %w", err)
 	}
 
-	builder := NewSecretAPIBuilder(secureValueStorage, keeperStorage)
-	apiregistration.RegisterAPI(builder)
-	return builder, nil
+	b := NewSecretAPIBuilder(tracer, secureValueStorage, keeperStorage)
+	apiregistration.RegisterAPI(b)
+	return b, nil
 }
 
 // GetGroupVersion returns the tuple of `group` and `version` for the API which uniquely identifies it.
