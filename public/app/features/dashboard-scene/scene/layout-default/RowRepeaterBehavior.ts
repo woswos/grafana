@@ -16,11 +16,11 @@ import {
   VizPanelMenu,
 } from '@grafana/scenes';
 
-import { getMultiVariableValues, getQueryRunnerFor } from '../utils/utils';
+import { getMultiVariableValues, getQueryRunnerFor } from '../../utils/utils';
+import { repeatPanelMenuBehavior } from '../PanelMenuBehavior';
+import { DashboardRepeatsProcessedEvent } from '../types';
 
-import { repeatPanelMenuBehavior } from './PanelMenuBehavior';
-import { DashboardGridItem } from './layout-default/DashboardGridItem';
-import { DashboardRepeatsProcessedEvent } from './types';
+import { DashboardGridItem } from './DashboardGridItem';
 
 interface RowRepeaterBehaviorState extends SceneObjectState {
   variableName: string;
@@ -86,7 +86,7 @@ export class RowRepeaterBehavior extends SceneObjectBase<RowRepeaterBehaviorStat
           continue;
         }
 
-        //if there are differences, find the new panel, move it to the original and perform re peat
+        // if there are differences, find the new panel, move it to the original and perform repeat
         const gridItem = row.state.children.find((gridItem) => !gridItem.state.key?.includes('clone'));
         if (gridItem) {
           const newGridItem = gridItem.clone();
@@ -164,7 +164,7 @@ export class RowRepeaterBehavior extends SceneObjectBase<RowRepeaterBehaviorStat
     let maxYOfRows = 0;
 
     // when variable has no options (due to error or similar) it will not render any panels at all
-    //  adding a placeholder in this case so that there is at least empty panel that can display error
+    // adding a placeholder in this case so that there is at least empty panel that can display error
     const emptyVariablePlaceholderOption = {
       values: [''],
       texts: variable.hasAllValue() ? ['All'] : ['None'],
@@ -173,7 +173,7 @@ export class RowRepeaterBehavior extends SceneObjectBase<RowRepeaterBehaviorStat
     const variableValues = values.length ? values : emptyVariablePlaceholderOption.values;
     const variableTexts = texts.length ? texts : emptyVariablePlaceholderOption.texts;
 
-    // Loop through variable values and create repeates
+    // Loop through variable values and create repeats
     for (let index = 0; index < variableValues.length; index++) {
       const children: SceneGridItemLike[] = [];
       const localValue = variableValues[index];
