@@ -122,7 +122,7 @@ export class RowItem extends SceneObjectBase<RowItemState> implements LayoutPare
   };
 
   public onAddPanel = (vizPanel = getDefaultVizPanel()) => {
-    this.state.layout.addPanel(vizPanel);
+    this.getLayout().addPanel(vizPanel);
   };
 
   public static Component = ({ model }: SceneComponentProps<RowItem>) => {

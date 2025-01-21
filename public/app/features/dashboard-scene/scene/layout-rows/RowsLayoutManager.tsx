@@ -8,15 +8,18 @@ import {
   SceneGridRow,
   SceneObjectBase,
   SceneObjectState,
+  SceneVariable,
   VizPanel,
 } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
 
+import { getDashboardSceneFor } from '../../utils/utils';
 import { DashboardScene } from '../DashboardScene';
 import { DashboardGridItem } from '../layout-default/DashboardGridItem';
 import { DefaultGridLayoutManager } from '../layout-default/DefaultGridLayoutManager';
 import { RowRepeaterBehavior } from '../layout-default/RowRepeaterBehavior';
 import { ResponsiveGridLayoutManager } from '../layout-responsive-grid/ResponsiveGridLayoutManager';
+import { TabsLayoutManager } from '../layout-tabs/TabsLayoutManager';
 import { isRepeatedSceneObject } from '../layouts-shared/repeatUtils';
 import { DashboardLayoutManager, LayoutRegistryItem } from '../types';
 
@@ -61,6 +64,12 @@ export class RowsLayoutManager extends SceneObjectBase<RowsLayoutManagerState> i
     });
   }
 
+  public addNewTab(): void {
+    const tabsLayout = TabsLayoutManager.createFromLayout(this);
+    tabsLayout.addNewTab();
+    getDashboardSceneFor(this).switchLayout(tabsLayout);
+  }
+
   public getNextPanelId(): number {
     return 0;
   }
@@ -81,7 +90,7 @@ export class RowsLayoutManager extends SceneObjectBase<RowsLayoutManagerState> i
     const panels: VizPanel[] = [];
 
     for (const row of this.state.rows) {
-      const innerPanels = row.state.layout.getVizPanels();
+      const innerPanels = row.getLayout().getVizPanels();
       panels.push(...innerPanels);
     }
 
@@ -194,6 +203,24 @@ export class RowsLayoutManager extends SceneObjectBase<RowsLayoutManagerState> i
     }
 
     return new RowsLayoutManager({ rows });
+  }
+
+  public handleVariableUpdateCompleted(variable: SceneVariable, hasChanged: boolean): void {
+    for (const row of this.state.rows) {
+      if (!row.state.$behaviors) {
+        continue;
+      }
+
+      for (const behavior of row.state.$behaviors) {
+        if (behavior instanceof RowItemRepeaterBehavior) {
+          if (behavior.isWaitingForVariables || (behavior.state.variableName === variable.state.name && hasChanged)) {
+            behavior.performRepeat(true);
+          } else if (!behavior.isWaitingForVariables && behavior.state.variableName === variable.state.name) {
+            behavior.notifyRepeatedPanelsWaitingForVariables(variable);
+          }
+        }
+      }
+    }
   }
 
   public static Component = ({ model }: SceneComponentProps<RowsLayoutManager>) => {
