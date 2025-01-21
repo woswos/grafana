@@ -213,6 +213,7 @@ function getStyles(theme: GrafanaTheme2) {
       display: 'flex',
       flexDirection: 'column',
       width: '100%',
+      minHeight: '100px',
     }),
     wrapperGrow: css({
       flexGrow: 1,
@@ -220,6 +221,7 @@ function getStyles(theme: GrafanaTheme2) {
     wrapperCollapsed: css({
       flexGrow: 0,
       borderBottom: `1px solid ${theme.colors.border.weak}`,
+      minHeight: 'unset',
     }),
     rowActions: css({
       display: 'flex',
