@@ -267,7 +267,7 @@ func TestLibraryElementDeletePermissions(t *testing.T) {
 		{
 			desc: "can delete library elements when granted write access to the correct folder",
 			permissions: map[string][]string{
-				dashboards.ActionFoldersWrite: {dashboards.ScopeFoldersProvider.GetResourceScopeUID("Folder")},
+				dashboards.ActionFoldersWrite: {dashboards.ScopeFoldersProvider.GetResourceScopeUID("uid_for_Folder")},
 			},
 			status: http.StatusOK,
 		},
