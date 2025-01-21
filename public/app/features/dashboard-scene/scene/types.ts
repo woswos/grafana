@@ -1,5 +1,5 @@
 import { BusEventWithPayload, RegistryItem } from '@grafana/data';
-import { SceneObject, VizPanel } from '@grafana/scenes';
+import { SceneObject, SceneVariable, VizPanel } from '@grafana/scenes';
 import { OptionsPaneCategoryDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneCategoryDescriptor';
 import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneItemDescriptor';
 
@@ -34,6 +34,10 @@ export interface DashboardLayoutManager extends SceneObject {
    */
   addNewRow(): void;
   /**
+   * Add tab
+   */
+  addNewTab(): void;
+  /**
    * getVizPanels
    */
   getVizPanels(): VizPanel[];
@@ -47,13 +51,17 @@ export interface DashboardLayoutManager extends SceneObject {
    */
   activateRepeaters?(): void;
   /**
-   * Get's the layout descriptor (which has the name and id)
+   * Gets the layout descriptor (which has the name and id)
    */
   getDescriptor(): LayoutRegistryItem;
   /**
    * Renders options and layout actions
    */
   getOptions?(): OptionsPaneItemDescriptor[];
+  /**
+   * Method to be called by DashboardScene when a variable update has been completed
+   */
+  handleVariableUpdateCompleted?(variable: SceneVariable, hasChange: boolean): void;
 }
 
 export function isDashboardLayoutManager(obj: SceneObject): obj is DashboardLayoutManager {
