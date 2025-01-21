@@ -13,7 +13,6 @@ import {
 import { config, locationService, RefreshEvent } from '@grafana/runtime';
 import {
   sceneGraph,
-  SceneGridRow,
   SceneObject,
   SceneObjectBase,
   SceneObjectRef,
@@ -77,9 +76,6 @@ import { isUsingAngularDatasourcePlugin, isUsingAngularPanelPlugin } from './ang
 import { setupKeyboardShortcuts } from './keyboardShortcuts';
 import { DashboardGridItem } from './layout-default/DashboardGridItem';
 import { DefaultGridLayoutManager } from './layout-default/DefaultGridLayoutManager';
-import { RowRepeaterBehavior } from './layout-default/RowRepeaterBehavior';
-import { RowItemRepeaterBehavior } from './layout-rows/RowItemRepeaterBehavior';
-import { RowsLayoutManager } from './layout-rows/RowsLayoutManager';
 import { DashboardLayoutManager } from './types';
 
 export const PERSISTED_PROPS = ['title', 'description', 'tags', 'editable', 'graphTooltip', 'links', 'meta', 'preload'];
@@ -595,6 +591,10 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> {
     this.state.body.addNewRow();
   }
 
+  public onCreateNewTab() {
+    this.state.body.addNewTab();
+  }
+
   public onCreateNewPanel(): VizPanel {
     const vizPanel = getDefaultVizPanel();
 
@@ -766,42 +766,10 @@ export class DashboardVariableDependency implements SceneVariableDependencyConfi
 
     /**
      * Propagate variable changes to repeat row behavior as it does not get it when it's nested under local value
-     * The first repeated row has the row repeater behavior but it also has a local SceneVariableSet with a local variable value
+     * The first repeated row has the row repeater behavior, but it also has a local SceneVariableSet with a local variable value
      */
     const layout = this._dashboard.state.body;
-    if (layout instanceof DefaultGridLayoutManager) {
-      for (const child of layout.state.grid.state.children) {
-        if (!(child instanceof SceneGridRow) || !child.state.$behaviors) {
-          continue;
-        }
-
-        for (const behavior of child.state.$behaviors) {
-          if (behavior instanceof RowRepeaterBehavior) {
-            if (behavior.isWaitingForVariables || (behavior.state.variableName === variable.state.name && hasChanged)) {
-              behavior.performRepeat(true);
-            } else if (!behavior.isWaitingForVariables && behavior.state.variableName === variable.state.name) {
-              behavior.notifyRepeatedPanelsWaitingForVariables(variable);
-            }
-          }
-        }
-      }
-    } else if (layout instanceof RowsLayoutManager) {
-      for (const row of layout.state.rows) {
-        if (!row.state.$behaviors) {
-          continue;
-        }
-
-        for (const behavior of row.state.$behaviors) {
-          if (behavior instanceof RowItemRepeaterBehavior) {
-            if (behavior.isWaitingForVariables || (behavior.state.variableName === variable.state.name && hasChanged)) {
-              behavior.performRepeat(true);
-            } else if (!behavior.isWaitingForVariables && behavior.state.variableName === variable.state.name) {
-              behavior.notifyRepeatedPanelsWaitingForVariables(variable);
-            }
-          }
-        }
-      }
-    }
+    layout.handleVariableUpdateCompleted?.(variable, hasChanged);
   }
 }
 
