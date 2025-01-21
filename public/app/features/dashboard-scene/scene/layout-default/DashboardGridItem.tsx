@@ -26,6 +26,7 @@ import { OptionsPaneCategoryDescriptor } from 'app/features/dashboard/components
 
 import { getMultiVariableValues, getQueryRunnerFor } from '../../utils/utils';
 import { repeatPanelMenuBehavior } from '../PanelMenuBehavior';
+import { getRepeatKeyForSceneObject } from '../layouts-shared/repeatUtils';
 import { DashboardLayoutItem, DashboardRepeatsProcessedEvent } from '../types';
 
 import { getDashboardGridItemOptions } from './DashboardGridItemEditor';
@@ -140,7 +141,7 @@ export class DashboardGridItem
             }),
           ],
         }),
-        key: `${panelToRepeat.state.key}-clone-${index}`,
+        key: getRepeatKeyForSceneObject(panelToRepeat, index),
       };
       if (index > 0) {
         cloneState.menu = new VizPanelMenu({

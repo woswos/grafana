@@ -18,6 +18,7 @@ import { ALL_VARIABLE_TEXT, ALL_VARIABLE_VALUE } from 'app/features/variables/co
 import { activateFullSceneTree } from '../../utils/test-utils';
 import { DashboardScene } from '../DashboardScene';
 import { panelMenuBehavior, repeatPanelMenuBehavior } from '../PanelMenuBehavior';
+import { getRepeatKey } from '../layouts-shared/repeatUtils';
 
 import { DashboardGridItem, RepeatDirection } from './DashboardGridItem';
 import { DefaultGridLayoutManager } from './DefaultGridLayoutManager';
@@ -66,7 +67,7 @@ describe('RowRepeaterBehavior', () => {
 
       // Should give repeated panels unique keys
       const gridItem = row2.state.children[0] as SceneGridItem;
-      expect(gridItem.state.body?.state.key).toBe('canvas-1-clone-B1');
+      expect(gridItem.state.body?.state.key).toBe(getRepeatKey('canvas-1', 'B1'));
     });
 
     it('Should update all rows when a panel is added to a clone', async () => {
