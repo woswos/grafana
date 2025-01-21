@@ -9,6 +9,7 @@ import {
   sceneUtils,
   SceneComponentProps,
   SceneGridItemLike,
+  SceneVariable,
 } from '@grafana/scenes';
 import { GRID_COLUMN_COUNT } from 'app/core/constants';
 
@@ -18,7 +19,9 @@ import {
   NEW_PANEL_HEIGHT,
   NEW_PANEL_WIDTH,
   getVizPanelKeyForPanelId,
+  getDashboardSceneFor,
 } from '../../utils/utils';
+import { TabsLayoutManager } from '../layout-tabs/TabsLayoutManager';
 import { DashboardLayoutManager, LayoutRegistryItem } from '../types';
 
 import { DashboardGridItem } from './DashboardGridItem';
@@ -102,6 +105,12 @@ export class DefaultGridLayoutManager
     sceneGridLayout.setState({ children: [row, ...sceneGridLayout.state.children] });
 
     return row;
+  }
+
+  public addNewTab(): void {
+    const tabsLayout = TabsLayoutManager.createFromLayout(this);
+    tabsLayout.addNewTab();
+    getDashboardSceneFor(this).switchLayout(tabsLayout);
   }
 
   /**
@@ -296,7 +305,7 @@ export class DefaultGridLayoutManager
     });
   }
 
-  activateRepeaters(): void {
+  public activateRepeaters(): void {
     this.state.grid.forEachChild((child) => {
       if (child instanceof DashboardGridItem && !child.isActive) {
         child.activate();
@@ -413,6 +422,24 @@ export class DefaultGridLayoutManager
         isResizable,
       }),
     });
+  }
+
+  public handleVariableUpdateCompleted(variable: SceneVariable, hasChanged: boolean): void {
+    for (const child of this.state.grid.state.children) {
+      if (!(child instanceof SceneGridRow) || !child.state.$behaviors) {
+        continue;
+      }
+
+      for (const behavior of child.state.$behaviors) {
+        if (behavior instanceof RowRepeaterBehavior) {
+          if (behavior.isWaitingForVariables || (behavior.state.variableName === variable.state.name && hasChanged)) {
+            behavior.performRepeat(true);
+          } else if (!behavior.isWaitingForVariables && behavior.state.variableName === variable.state.name) {
+            behavior.notifyRepeatedPanelsWaitingForVariables(variable);
+          }
+        }
+      }
+    }
   }
 
   public static Component = ({ model }: SceneComponentProps<DefaultGridLayoutManager>) => {
