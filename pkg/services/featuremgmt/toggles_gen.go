@@ -950,4 +950,8 @@ const (
 	// FlagElasticsearchImprovedParsing
 	// Enables less memory intensive Elasticsearch result parsing
 	FlagElasticsearchImprovedParsing = "elasticsearchImprovedParsing"
+
+	// FlagExploreMetricsUseExternalAppPlugin
+	// Use the externalized Explore Metrics app plugin
+	FlagExploreMetricsUseExternalAppPlugin = "exploreMetricsUseExternalAppPlugin"
 )
