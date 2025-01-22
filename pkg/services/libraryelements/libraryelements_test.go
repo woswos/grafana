@@ -475,10 +475,11 @@ func testScenario(t *testing.T, desc string, fn func(t *testing.T, sc scenarioCo
 		folderSrv := folderimpl.ProvideService(fStore, ac, bus.ProvideBus(tracer), dashboardStore, folderStore, sqlStore,
 			features, supportbundlestest.NewFakeBundleService(), cfg, nil, tracing.InitializeTracerForTest())
 		service := LibraryElementService{
-			Cfg:           cfg,
-			features:      featuremgmt.WithFeatures(),
-			SQLStore:      sqlStore,
-			folderService: folderSrv,
+			Cfg:               cfg,
+			features:          featuremgmt.WithFeatures(),
+			SQLStore:          sqlStore,
+			folderService:     folderSrv,
+			dashboardsService: dashService,
 		}
 
 		// deliberate difference between signed in user and user in db to make it crystal clear
